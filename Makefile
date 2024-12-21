@@ -23,9 +23,11 @@ BUILD_LD_FLAGS += -X $(BUILD_MODULE)/pkg/version.GitBranch=$(shell git name-rev 
 BUILD_LD_FLAGS += -X $(BUILD_MODULE)/pkg/version.GitHash=$(shell git rev-parse HEAD)
 BUILD_LD_FLAGS += -X $(BUILD_MODULE)/pkg/version.GoBuildTime=$(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 BUILD_FLAGS = -ldflags "-s -w $(BUILD_LD_FLAGS)" 
+TEST_FLAGS = -v
 
 # If GGML_CUDA is set, then add a cuda tag for the go ${BUILD FLAGS}
 ifeq ($(GGML_CUDA),1)
+	TEST_FLAGS += -tags cuda
 	BUILD_FLAGS += -tags cuda
 	CUDA_DOCKER_ARCH ?= all
 endif
@@ -41,6 +43,7 @@ generate: mkdir go-tidy
 # Make whisper
 whisper: mkdir generate go-tidy libwhisper
 	@echo "Building whisper"
+	echo "PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} build ${BUILD_FLAGS} -o ${BUILD_DIR}/whisper ./cmd/whisper"
 	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} build ${BUILD_FLAGS} -o ${BUILD_DIR}/whisper ./cmd/whisper
 
 # Make api
@@ -62,14 +65,14 @@ docker: docker-dep submodule
 # Test whisper bindings
 test: generate libwhisper
 	@echo "Running tests (sys)"
-	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ./sys/whisper/...
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ${TEST_FLAGS} ./sys/whisper/...
 	@echo "Running tests (pkg)"
-	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ./pkg/...
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ${TEST_FLAGS} ./pkg/...
 	@echo "Running tests (whisper)"
-	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ./
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ${TEST_FLAGS} ./
 
 libwhisper: mkdir submodule cmake-dep 
-	@${CMAKE} -S third_party/whisper.cpp -B ${BUILD_DIR} -DBUILD_SHARED_LIBS=0
+	@${CMAKE} -S third_party/whisper.cpp -B ${BUILD_DIR} -DBUILD_SHARED_LIBS=0 -DGGML_CUDA=${GGML_CUDA}
 	@${CMAKE} --build ${BUILD_DIR} -j --config Release
 
 # Push docker container
