@@ -2,6 +2,7 @@
 DOCKER=$(shell which docker)
 GIT=$(shell which git)
 GO=$(shell which go)
+CMAKE=$(shell which cmake)
 
 # Set OS and Architecture
 ARCH ?= $(shell arch | tr A-Z a-z | sed 's/x86_64/amd64/' | sed 's/i386/amd64/' | sed 's/armv7l/arm/' | sed 's/aarch64/arm64/')
@@ -61,26 +62,15 @@ docker: docker-dep submodule
 # Test whisper bindings
 test: generate libwhisper
 	@echo "Running tests (sys)"
-	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test -v ./sys/whisper/...
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ./sys/whisper/...
 	@echo "Running tests (pkg)"
-	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test -v ./pkg/...
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ./pkg/...
 	@echo "Running tests (whisper)"
-	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test -v ./
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test ./
 
-libwhisper: mkdir submodule libggml
-	@mkdir -p ${BUILD_DIR}/whisper
-	@cmake -S third_party/whisper.cpp -B ${BUILD_DIR}/whisper -DBUILD_SHARED_LIBS=0
-	@cmake --build ${BUILD_DIR}/whisper -j --config Release
-
-# Build whisper-static-library
-#libwhisper: submodule
-#	@echo "Building libwhisper.a"
-#	@cd third_party/whisper.cpp && make -j$(nproc) libwhisper.a
-
-# Build ggml-static-library
-#libggml: submodule
-#	@echo "Building libggml.a"
-#	@cd third_party/whisper.cpp && make -j$(nproc) libggml.a
+libwhisper: mkdir submodule cmake-dep 
+	@${CMAKE} -S third_party/whisper.cpp -B ${BUILD_DIR} -DBUILD_SHARED_LIBS=0
+	@${CMAKE} --build ${BUILD_DIR} -j --config Release
 
 # Push docker container
 docker-push: docker-dep 
@@ -109,6 +99,10 @@ submodule-clean: git-dep
 # Check for docker
 docker-dep:
 	@test -f "${DOCKER}" && test -x "${DOCKER}"  || (echo "Missing docker binary" && exit 1)
+
+# Check for docker
+cmake-dep:
+	@test -f "${CMAKE}" && test -x "${CMAKE}"  || (echo "Missing cmake binary" && exit 1)
 
 # Check for git
 git-dep:
