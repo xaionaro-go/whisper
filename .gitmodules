@@ -2,6 +2,3 @@
 	path = third_party/whisper.cpp
 	url = https://github.com/ggerganov/whisper.cpp
 
-[submodule "third_party/ggml"]
-	path = third_party/ggml
-	url = https://github.com/ggerganov/ggml

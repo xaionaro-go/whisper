@@ -70,12 +70,7 @@ test: generate libwhisper
 libwhisper: mkdir submodule libggml
 	@mkdir -p ${BUILD_DIR}/whisper
 	@cmake -S third_party/whisper.cpp -B ${BUILD_DIR}/whisper -DBUILD_SHARED_LIBS=0
-	@cmake --build ${BUILD_DIR} -j --config Release
-
-libggml: mkdir submodule 
-	@mkdir -p ${BUILD_DIR}/ggml
-	@cmake -S third_party/ggml -B ${BUILD_DIR}/ggml -DBUILD_SHARED_LIBS=0
-	@cmake --build ${BUILD_DIR} -j --config Release
+	@cmake --build ${BUILD_DIR}/whisper -j --config Release
 
 # Build whisper-static-library
 #libwhisper: submodule
