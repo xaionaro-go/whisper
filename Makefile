@@ -38,7 +38,7 @@ generate: mkdir go-tidy
 	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} go generate ./sys/whisper
 
 # Make whisper
-whisper: mkdir generate go-tidy libwhisper libggml
+whisper: mkdir generate go-tidy libwhisper
 	@echo "Building whisper"
 	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} build ${BUILD_FLAGS} -o ${BUILD_DIR}/whisper ./cmd/whisper
 
@@ -59,7 +59,7 @@ docker: docker-dep submodule
 		-f etc/Dockerfile .
 
 # Test whisper bindings
-test: generate libwhisper libggml
+test: generate libwhisper
 	@echo "Running tests (sys)"
 	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test -v ./sys/whisper/...
 	@echo "Running tests (pkg)"
@@ -67,15 +67,25 @@ test: generate libwhisper libggml
 	@echo "Running tests (whisper)"
 	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test -v ./
 
+libwhisper: mkdir submodule libggml
+	@mkdir -p ${BUILD_DIR}/whisper
+	@cmake -S third_party/whisper.cpp -B ${BUILD_DIR}/whisper -DBUILD_SHARED_LIBS=0
+	@cmake --build ${BUILD_DIR} -j --config Release
+
+libggml: mkdir submodule 
+	@mkdir -p ${BUILD_DIR}/ggml
+	@cmake -S third_party/ggml -B ${BUILD_DIR}/ggml -DBUILD_SHARED_LIBS=0
+	@cmake --build ${BUILD_DIR} -j --config Release
+
 # Build whisper-static-library
-libwhisper: submodule
-	@echo "Building libwhisper.a"
-	@cd third_party/whisper.cpp && make -j$(nproc) libwhisper.a
+#libwhisper: submodule
+#	@echo "Building libwhisper.a"
+#	@cd third_party/whisper.cpp && make -j$(nproc) libwhisper.a
 
 # Build ggml-static-library
-libggml: submodule
-	@echo "Building libggml.a"
-	@cd third_party/whisper.cpp && make -j$(nproc) libggml.a
+#libggml: submodule
+#	@echo "Building libggml.a"
+#	@cd third_party/whisper.cpp && make -j$(nproc) libggml.a
 
 # Push docker container
 docker-push: docker-dep 

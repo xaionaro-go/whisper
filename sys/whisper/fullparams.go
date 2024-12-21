@@ -107,13 +107,13 @@ func (ctx FullParams) MarshalJSON() ([]byte, error) {
 		PromptTokens            []string         `json:"prompt_tokens,omitempty"`    // use whisper_tokenize() to convert text to tokens
 		Language                string           `json:"language,omitempty"`         // for auto-detection, set to "" or "auto"
 		DetectLanguage          bool             `json:"detect_language,omitempty"`
-		SuppressBlank           bool             `json:"suppress_blank,omitempty"`             // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89
-		SuppressNonSpeechTokens bool             `json:"suppress_non_speech_tokens,omitempty"` // ref: https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253
-		Temperature             float32          `json:"temperature,omitempty"`                // initial decoding temperature, ref: https://ai.stackexchange.com/a/32478
-		MaxInitialTs            float32          `json:"max_initial_ts,omitempty"`             // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L97
-		LengthPenalty           float32          `json:"length_penalty,omitempty"`             // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L267
-		TemperatureInc          float32          `json:"temperature_inc,omitempty"`            // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
-		EntropyThreshold        float32          `json:"entropy_thold,omitempty"`              // similar to OpenAI's "compression_ratio_threshold"
+		SuppressBlank           bool             `json:"suppress_blank,omitempty"`  // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L89
+		SuppressNonSpeechTokens bool             `json:"suppress_nst,omitempty"`    // ref: https://github.com/openai/whisper/blob/7858aa9c08d98f75575035ecd6481f462d66ca27/whisper/tokenizer.py#L224-L253
+		Temperature             float32          `json:"temperature,omitempty"`     // initial decoding temperature, ref: https://ai.stackexchange.com/a/32478
+		MaxInitialTs            float32          `json:"max_initial_ts,omitempty"`  // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/decoding.py#L97
+		LengthPenalty           float32          `json:"length_penalty,omitempty"`  // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L267
+		TemperatureInc          float32          `json:"temperature_inc,omitempty"` // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
+		EntropyThreshold        float32          `json:"entropy_thold,omitempty"`   // similar to OpenAI's "compression_ratio_threshold"
 		LogProbThreshold        float32          `json:"logprob_thold,omitempty"`
 		ProgressCallback        uintptr          `json:"progress_callback,omitempty"`
 		AbortCallback           uintptr          `json:"abort_callback,omitempty"`
@@ -147,7 +147,7 @@ func (ctx FullParams) MarshalJSON() ([]byte, error) {
 		Language:                C.GoString(ctx.language),
 		DetectLanguage:          bool(ctx.detect_language),
 		SuppressBlank:           bool(ctx.suppress_blank),
-		SuppressNonSpeechTokens: bool(ctx.suppress_non_speech_tokens),
+		SuppressNonSpeechTokens: bool(ctx.suppress_nst),
 		Temperature:             float32(ctx.temperature),
 		MaxInitialTs:            float32(ctx.max_initial_ts),
 		LengthPenalty:           float32(ctx.length_penalty),
