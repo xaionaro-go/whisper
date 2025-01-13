@@ -115,6 +115,7 @@ func (ctx FullParams) MarshalJSON() ([]byte, error) {
 		TemperatureInc          float32          `json:"temperature_inc,omitempty"` // ref: https://github.com/openai/whisper/blob/f82bc59f5ea234d4b97fb2860842ed38519f7e65/whisper/transcribe.py#L274-L278
 		EntropyThreshold        float32          `json:"entropy_thold,omitempty"`   // similar to OpenAI's "compression_ratio_threshold"
 		LogProbThreshold        float32          `json:"logprob_thold,omitempty"`
+		NoSpeechThreshold       float32          `json:"no_speech_thold,omitempty"`
 		ProgressCallback        uintptr          `json:"progress_callback,omitempty"`
 		AbortCallback           uintptr          `json:"abort_callback,omitempty"`
 		SegmentCallback         uintptr          `json:"segment_callback,omitempty"`
@@ -154,6 +155,7 @@ func (ctx FullParams) MarshalJSON() ([]byte, error) {
 		TemperatureInc:          float32(ctx.temperature_inc),
 		EntropyThreshold:        float32(ctx.entropy_thold),
 		LogProbThreshold:        float32(ctx.logprob_thold),
+		NoSpeechThreshold:       float32(ctx.no_speech_thold),
 		ProgressCallback:        uintptr(ctx.progress_callback_user_data),
 		AbortCallback:           uintptr(ctx.abort_callback_user_data),
 		SegmentCallback:         uintptr(ctx.new_segment_callback_user_data),
@@ -240,6 +242,14 @@ func (c *FullParams) SetTranslate(v bool) {
 
 func (c *FullParams) Translate() bool {
 	return bool(c.translate)
+}
+
+func (c *FullParams) SetNoSpeechThreshold(t float32) {
+	c.no_speech_thold = (C.float)(t)
+}
+
+func (c *FullParams) NoSpeechThreshold() float32 {
+	return float32(c.no_speech_thold)
 }
 
 func (c *FullParams) SetDiarize(v bool) {

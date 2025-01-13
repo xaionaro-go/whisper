@@ -28,12 +28,13 @@ type (
 		Type TokenType     `json:"type,omitempty"`
 	}
 	Segment struct {
-		Id          int32         `json:"id"`
-		Text        string        `json:"text,omitempty"`
-		T0          time.Duration `json:"t0,omitempty"`
-		T1          time.Duration `json:"t1,omitempty"`
-		SpeakerTurn bool          `json:"speaker_turn,omitempty"`
-		Tokens      []Token       `json:"tokens,omitempty"`
+		Id           int32         `json:"id"`
+		Text         string        `json:"text,omitempty"`
+		T0           time.Duration `json:"t0,omitempty"`
+		T1           time.Duration `json:"t1,omitempty"`
+		SpeakerTurn  bool          `json:"speaker_turn,omitempty"`
+		Tokens       []Token       `json:"tokens,omitempty"`
+		NoSpeechProb float32       `json:"no_speech_prob,omitempty"`
 	}
 	TokenType int
 )
@@ -108,12 +109,13 @@ func (ctx *Context) Segment(n int) *Segment {
 		return nil
 	}
 	return &Segment{
-		Id:          int32(n),
-		Text:        C.GoString(C.whisper_full_get_segment_text((*C.struct_whisper_context)(ctx), C.int(n))),
-		SpeakerTurn: (bool)(C.whisper_full_get_segment_speaker_turn_next((*C.struct_whisper_context)(ctx), C.int(n))),
-		Tokens:      ctx.Tokens(n),
-		T0:          tsToDuration(C.whisper_full_get_segment_t0((*C.struct_whisper_context)(ctx), C.int(n))),
-		T1:          tsToDuration(C.whisper_full_get_segment_t1((*C.struct_whisper_context)(ctx), C.int(n))),
+		Id:           int32(n),
+		Text:         C.GoString(C.whisper_full_get_segment_text((*C.struct_whisper_context)(ctx), C.int(n))),
+		SpeakerTurn:  (bool)(C.whisper_full_get_segment_speaker_turn_next((*C.struct_whisper_context)(ctx), C.int(n))),
+		Tokens:       ctx.Tokens(n),
+		T0:           tsToDuration(C.whisper_full_get_segment_t0((*C.struct_whisper_context)(ctx), C.int(n))),
+		T1:           tsToDuration(C.whisper_full_get_segment_t1((*C.struct_whisper_context)(ctx), C.int(n))),
+		NoSpeechProb: float32(C.whisper_full_get_segment_no_speech_prob((*C.struct_whisper_context)(ctx), C.int(n))),
 	}
 }
 
