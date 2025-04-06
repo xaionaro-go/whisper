@@ -1,6 +1,9 @@
 package whisper
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 ///////////////////////////////////////////////////////////////////////////////
 // CGO
@@ -87,6 +90,14 @@ func Whisper_full(ctx *Context, params FullParams, samples []float32) error {
 	if C.whisper_full((*C.struct_whisper_context)(ctx), (C.struct_whisper_full_params)(params), (*C.float)(&samples[0]), C.int(len(samples))) != 0 {
 		return ErrTranscriptionFailed
 	}
+	return nil
+}
+
+func Whisper_lang_auto_detect(ctx *Context, offsetMS, nThreads int, langProbs []float32) error {
+	if n := int(C.whisper_lang_auto_detect((*C.struct_whisper_context)(ctx), C.int(offsetMS), C.int(nThreads), (*C.float)(&langProbs[0]))); n < 0 {
+		return ErrAutoDetectFailed
+	}
+	runtime.KeepAlive(langProbs)
 	return nil
 }
 

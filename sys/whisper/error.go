@@ -4,6 +4,7 @@ import "errors"
 
 var (
 	ErrTranscriptionFailed = errors.New("whisper_full failed")
+	ErrAutoDetectFailed    = errors.New("whisper_lang_auto_detect failed")
 )
 
 type HTTPError struct {
