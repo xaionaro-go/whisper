@@ -188,6 +188,10 @@ func (v SamplingStrategy) String() string {
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC METHODS
 
+func (c *FullParams) NumThreads() int {
+	return int(c.n_threads)
+}
+
 func (c *FullParams) SetNumThreads(v int) {
 	c.n_threads = (C.int)(v)
 }
